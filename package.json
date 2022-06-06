@@ -1,0 +1,16 @@
+{
+  "name": "wiki-dumper",
+  "version": "1.0.0",
+  "description": "Dumps information from the wiki apis.",
+  "main": "src/items/index.js",
+  "author": "Tyler Telis",
+  "license": "MIT",
+  "scripts": {
+    "dump-items": "node ./src/items/index.js",
+    "dump-npcs": "node ./src/npcs/index.js"
+  },
+  "devDependencies": {
+    "lodash": "^4.17.21",
+    "wtf_wikipedia": "^10.0.1"
+  }
+}
