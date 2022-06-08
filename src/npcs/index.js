@@ -57,7 +57,7 @@ const parseImmunities = (box, npcId) => ({
 const parseSlayer = (box, npcId) => ({
     slayerLevel: parseField(box, npcId, 'slaylvl')?.number || null,
     slayerXP: parseField(box, npcId, 'slayxp')?.number || null,
-    category: parseField(box, npcId, 'cat')?.text?.split(',')  || null,
+    category: parseField(box, npcId, 'cat')?.text?.split(',').map((string) => string.trim())  || null,
     assignedBy: parseField(box, npcId, 'assignedby')?.text?.split(',')|| null
 });
 

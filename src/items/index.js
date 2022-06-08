@@ -4,6 +4,29 @@ const _ = require('lodash');
 const wikiItems = require('../../data/wiki/items/wiki-text-2022-6-1.json');
 const { readVersions, parseName, cleanBonus } = require("../utils/parsingUtils");
 
+const SHOW_ARMS = [
+	'chainbody',
+];
+
+const SHOW_HAIR = [
+	'partyhat',
+	'tiara',
+	'crown',
+	'glasses',
+	'spectacles',
+	'hat'
+]
+
+const SHOW_BEARD = [
+	'horns',
+	'hat',
+	'afro',
+	'cowl',
+	'tattoo',
+	'headdress',
+	'hood',
+];
+
 const parseWeight = (info, itemId) => {
 	const { isVersion1, isVersion2, isVersion3, isVersion4, isVersion5, isVersion6, isVersion7, isVersion8 } = readVersions(info, itemId);
 
@@ -92,9 +115,11 @@ const parsed = Object.keys(wikiItems).map(id => {
 
 	const info = infoBoxes[0];
 
+	const name = parseName(info, itemId) || parsed?.title || 'Missing';
+
 	const item = {
 		itemId,
-		name: parseName(info, itemId) || parsed?.title || 'Missing',
+		name,
 		release: info?.release?.text,
 		update: info?.update?.text,
 		noteable: parseNotable(info, itemId),
@@ -112,6 +137,8 @@ const parsed = Object.keys(wikiItems).map(id => {
     };
 
 	if (item.equipable && wikiBonuses && Object.keys(wikiBonuses).length > 0) {
+		const equipmentSlot = wikiBonuses?.slot?.text || null;
+
 		item.equipment = {
 			"attackStab": cleanBonus(wikiBonuses?.astab),
 			"attackSlash": cleanBonus(wikiBonuses?.aslash),
@@ -127,10 +154,21 @@ const parsed = Object.keys(wikiItems).map(id => {
 			"rangedStrength": cleanBonus(wikiBonuses?.rstr),
 			"magicDamage": cleanBonus(wikiBonuses?.mdmg, true),
 			"prayer": cleanBonus(wikiBonuses?.prayer),
-			"equipmentSlot": wikiBonuses?.slot?.text || null,
+			"equipmentSlot": equipmentSlot,
 			"attackSpeed": wikiBonuses?.speed?.number || null,
 			"attackRange": wikiBonuses?.attackrange?.number || null,
 			"combatStyle": wikiBonuses?.combatstyle?.text || null
+		}
+
+		const hideArms = name.toLowerCase().indexOf('dragon chainbody') !== -1 || name.indexOf('chainbody') === -1;
+		const hideHair = name.indexOf('med helm') !== -1 || SHOW_HAIR.filter((i) => i.indexOf(name) !== -1).length > 0;
+		const showBeard = !hideHair || SHOW_BEARD.indexOf(name) !== -1  || (name.indexOf('mask') !== -1 && name.indexOf('h\'ween') === -1) || (name.indexOf('helm') !== -1 && name.indexOf('full') === -1);
+
+		if (equipmentSlot === 'body') {
+			item.equipment.hideArms = hideArms;
+		} else if (equipmentSlot === 'head') {
+			item.equipment.hideHair = hideHair;
+			item.equipment.showBeard = showBeard
 		}
 	}
 	return item;
